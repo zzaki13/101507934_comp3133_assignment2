@@ -1,0 +1,118 @@
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-primary px-4 shadow-sm">
+  <span class="navbar-brand fw-bold fs-5">👥 Employee Management App</span>
+  <div class="d-flex align-items-center gap-3">
+    <span class="text-white-50 small" *ngIf="currentUser">Welcome, <strong class="text-white">{{ currentUser.username }}</strong></span>
+    <button class="btn btn-outline-light btn-sm" (click)="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="container-fluid mt-4 px-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-0">Employees List</h3>
+      <small class="text-muted">{{ employees.length }} employee(s) found</small>
+    </div>
+    <a routerLink="/employees/add" class="btn btn-success">
+      + Add Employee
+    </a>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold small">Search By</label>
+          <select class="form-select" [(ngModel)]="searchType">
+            <option value="department">Department</option>
+            <option value="designation">Designation / Position</option>
+          </select>
+        </div>
+        <div class="col-md-7">
+          <label class="form-label fw-semibold small">Search Term</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="searchTerm"
+            placeholder="Type to search..."
+            (keyup.enter)="search()"
+          >
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+          <button class="btn btn-primary flex-fill" (click)="search()" [disabled]="searching">
+            <span *ngIf="searching" class="spinner-border spinner-border-sm me-1"></span>
+            Search
+          </button>
+          <button class="btn btn-outline-secondary" (click)="clearSearch()" title="Clear search">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible">{{ error }}</div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" style="width:3rem; height:3rem;"></div>
+    <p class="mt-3 text-muted">Loading employees...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && employees.length === 0" class="text-center py-5">
+    <div style="font-size:4rem;">🔍</div>
+    <h5 class="text-muted mt-2">No employees found</h5>
+    <button class="btn btn-outline-primary mt-2" (click)="clearSearch()">Show All Employees</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-responsive" *ngIf="!loading && employees.length > 0">
+    <table class="table table-hover align-middle shadow-sm bg-white rounded">
+      <thead class="table-dark">
+        <tr>
+          <th>Photo</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Designation</th>
+          <th>Department</th>
+          <th>Salary</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of employees">
+          <td>
+            <img
+              *ngIf="emp.employee_photo"
+              [src]="emp.employee_photo"
+              alt="photo"
+              class="rounded-circle border"
+              style="width:42px; height:42px; object-fit:cover;"
+            >
+            <div
+              *ngIf="!emp.employee_photo"
+              class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center text-white fw-bold"
+              style="width:42px; height:42px; font-size:0.9rem;"
+            >
+              {{ emp.first_name[0] }}{{ emp.last_name[0] }}
+            </div>
+          </td>
+          <td class="fw-semibold">{{ emp.first_name }}</td>
+          <td>{{ emp.last_name }}</td>
+          <td class="text-muted">{{ emp.email }}</td>
+          <td><span class="badge bg-info text-dark">{{ emp.designation }}</span></td>
+          <td><span class="badge bg-secondary">{{ emp.department }}</span></td>
+          <td class="fw-semibold">{{ emp.salary | currency }}</td>
+          <td class="text-center">
+            <a [routerLink]="['/employees', emp._id]" class="btn btn-info btn-sm me-1">View</a>
+            <a [routerLink]="['/employees', emp._id, 'edit']" class="btn btn-warning btn-sm me-1">Update</a>
+            <button class="btn btn-danger btn-sm" (click)="deleteEmployee(emp._id, emp.first_name + ' ' + emp.last_name)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
